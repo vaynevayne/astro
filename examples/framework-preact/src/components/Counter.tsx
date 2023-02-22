@@ -9,7 +9,7 @@ export default function Counter({ children, count }) {
 		<>
 			<div class="counter">
 				<button onClick={subtract}>-</button>
-				<pre>{count}</pre>
+				<pre>{count + 1}</pre>
 				<button onClick={add}>+</button>
 			</div>
 			<div class="counter-message">{children}</div>

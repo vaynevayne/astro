@@ -1,3 +1,4 @@
+import preset from '@preact/preset-vite';
 import { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 
 function getRenderer(development: boolean): AstroRenderer {
@@ -50,11 +51,13 @@ function getCompatRenderer(development: boolean): AstroRenderer {
 }
 
 function getViteConfiguration(compat?: boolean): ViteUserConfig {
+
 	const viteConfig: ViteUserConfig = {
 		optimizeDeps: {
 			include: ['@astrojs/preact/client.js', 'preact', 'preact/jsx-runtime'],
 			exclude: ['@astrojs/preact/server.js'],
 		},
+		plugins: []
 	};
 
 	if (compat) {
@@ -86,11 +89,17 @@ export default function ({ compat }: { compat?: boolean } = {}): AstroIntegratio
 		name: '@astrojs/preact',
 		hooks: {
 			'astro:config:setup': ({ addRenderer, updateConfig, command }) => {
+				const plugins = preset({ include: '/@jsx/**/*' });
+				const vite = getViteConfiguration(compat);
+				vite.plugins.push(...plugins);
+
 				const development = command === 'dev';
 				if (compat) addRenderer(getCompatRenderer(development));
-				addRenderer(getRenderer(development));
+				const renderer = getRenderer(development);
+				renderer.jsxPluginNames = plugins.map(p => p.name);
+				addRenderer(renderer);
 				updateConfig({
-					vite: getViteConfiguration(compat),
+					vite,
 				});
 			},
 		},

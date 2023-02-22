@@ -1,4 +1,4 @@
-import type { TransformResult } from 'rollup';
+import type { TransformHook, TransformPluginContext, TransformResult } from 'rollup';
 import { EsbuildTransformOptions, Plugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import type { AstroRenderer, AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
@@ -40,6 +40,8 @@ interface TransformJSXOptions {
 	renderer: AstroRenderer;
 	ssr: boolean;
 	root: URL;
+	viteConfig: ResolvedConfig;
+	transformContext: TransformPluginContext;
 }
 
 async function transformJSX({
@@ -49,6 +51,8 @@ async function transformJSX({
 	ssr,
 	renderer,
 	root,
+	viteConfig,
+	transformContext,
 }: TransformJSXOptions): Promise<TransformResult> {
 	const { jsxTransformOptions } = renderer;
 	const options = await jsxTransformOptions!({ mode, ssr });
@@ -56,6 +60,20 @@ async function transformJSX({
 	if (ssr) {
 		plugins.push(await tagExportsPlugin({ rendererName: renderer.name, root }));
 	}
+	if (renderer.jsxPluginNames) {
+		const hooks = viteConfig.getSortedPlugins('transform').filter(hook => renderer.jsxPluginNames.includes(hook.name))
+		for (const hook of hooks) {
+			let handler;
+			if (hook.transform) {
+				handler = ('handler' in hook.transform) ? hook.transform.handler : hook.transform;
+			}
+			const result = await handler?.call(transformContext, code, `/@jsx/${id}`, { ssr });
+			if (result) {
+				console.log(result);
+			}
+		}
+	}
+	
 	const result = await babel.transformAsync(code, {
 		presets: options.presets,
 		plugins,
@@ -154,6 +172,8 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 					mode,
 					ssr,
 					root: settings.config.root,
+					transformContext: this,
+					viteConfig,
 				});
 			}
 			if (defaultJSXRendererEntry && jsxRenderersIntegrationOnly.size === 1) {
@@ -170,6 +190,8 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 					mode,
 					ssr,
 					root: settings.config.root,
+					transformContext: this,
+					viteConfig
 				});
 			}
 
@@ -227,6 +249,8 @@ https://docs.astro.build/en/core-concepts/framework-components/#installing-integ
 				mode,
 				ssr,
 				root: settings.config.root,
+				transformContext: this,
+				viteConfig
 			});
 		},
 	};

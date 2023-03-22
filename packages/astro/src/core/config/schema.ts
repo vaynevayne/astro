@@ -6,7 +6,12 @@ import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 import type { OutgoingHttpHeaders } from 'http';
 import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
-import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
+import {
+	appendForwardSlash,
+	prependForwardSlash,
+	removeTrailingForwardSlash,
+	trimSlashes,
+} from '../path.js';
 
 const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	root: '.',
@@ -267,11 +272,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 		) {
 			config.build.client = new URL('./dist/client/', config.outDir);
 		}
-		const trimmedBase = trimSlashes(config.base);
 
 		// If there is no base but there is a base for site config, warn.
 		const sitePathname = config.site && new URL(config.site).pathname;
-		if (!trimmedBase.length && sitePathname && sitePathname !== '/') {
+		if (!trimSlashes(config.base).length && sitePathname && sitePathname !== '/') {
 			config.base = sitePathname;
 			/* eslint-disable no-console */
 			console.warn(`The site configuration value includes a pathname of ${sitePathname} but there is no base configuration.
@@ -279,10 +283,12 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 A future version of Astro will stop using the site pathname when producing <link> and <script> tags. Set your site's base with the base configuration.`);
 		}
 
-		if (trimmedBase.length && config.trailingSlash === 'never') {
-			config.base = prependForwardSlash(trimmedBase);
+		if (config.trailingSlash === 'never') {
+			config.base = prependForwardSlash(removeTrailingForwardSlash(config.base));
+		} else if (config.trailingSlash === 'always') {
+			config.base = prependForwardSlash(appendForwardSlash(config.base));
 		} else {
-			config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
+			config.base = prependForwardSlash(config.base);
 		}
 
 		return config;

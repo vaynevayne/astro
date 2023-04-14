@@ -1620,6 +1620,7 @@ export interface SSRMetadata {
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;
+	request: Request;
 }
 
 /**
@@ -1645,7 +1646,9 @@ export interface SSRResult {
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
+	outletPropagators: Map<string, any>;
 	extraHead: Array<string>;
+	outlets: Map<string, any>;
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,

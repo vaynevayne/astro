@@ -20,15 +20,15 @@ type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImpo
 
 export function createCollectionToGlobResultMap({
 	globResult,
-	dir,
+	contentDir,
 }: {
 	globResult: GlobResult;
-	dir: string;
+	contentDir: string;
 }) {
 	const collectionToGlobResultMap: CollectionToEntryMap = {};
 	for (const key in globResult) {
-		const keyRelativeToDir = key.replace(new RegExp(`^${dir}`), '');
-		const segments = keyRelativeToDir.split('/');
+		const keyRelativeToContentDir = key.replace(new RegExp(`^${contentDir}`), '');
+		const segments = keyRelativeToContentDir.split('/');
 		if (segments.length <= 1) continue;
 		const collection = segments[0];
 		collectionToGlobResultMap[collection] ??= {};
@@ -317,7 +317,7 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 				});
 				return;
 			}
-			// Content is still indentified by slugs, so map to a `slug` key for consistency.
+			// Content is still identified by slugs, so map to a `slug` key for consistency.
 			if (type === 'content') {
 				return { slug: lookupId, collection };
 			}

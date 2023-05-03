@@ -1,5 +1,42 @@
 # astro
 
+## 2.4.0
+
+### Minor Changes
+
+- [#6659](https://github.com/withastro/astro/pull/6659) [`80e3d4d3d`](https://github.com/withastro/astro/commit/80e3d4d3d0f7719d8eae5435bba3805503057511) Thanks [@lilnasy](https://github.com/lilnasy)! - Implement Inline Stylesheets RFC as experimental
+
+- [#6771](https://github.com/withastro/astro/pull/6771) [`3326492b9`](https://github.com/withastro/astro/commit/3326492b94f76ed2b0154dd9b9a1a9eb883c1e31) Thanks [@matthewp](https://github.com/matthewp)! - Implements a new class-based scoping strategy
+
+  This implements the [Scoping RFC](https://github.com/withastro/roadmap/pull/543), providing a way to opt in to increased style specificity for Astro component styles.
+
+  This prevents bugs where global styles override Astro component styles due to CSS ordering and the use of element selectors.
+
+  To enable class-based scoping, you can set it in your config:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    scopedStyleStrategy: 'class',
+  });
+  ```
+
+  Note that the 0-specificity `:where` pseudo-selector is still the default strategy. The intent is to change `'class'` to be the default in 3.0.
+
+- [#6959](https://github.com/withastro/astro/pull/6959) [`cac4a321e`](https://github.com/withastro/astro/commit/cac4a321e814fb805eb0e3ced469e25261a50885) Thanks [@bluwy](https://github.com/bluwy)! - Support `<Code inline />` to output inline code HTML (no `pre` tag)
+
+- [#6721](https://github.com/withastro/astro/pull/6721) [`831b67cdb`](https://github.com/withastro/astro/commit/831b67cdb8250f93f66e3b171fab024652bf80f2) Thanks [@ematipico](https://github.com/ematipico)! - New middleware API
+
+- [#6932](https://github.com/withastro/astro/pull/6932) [`49514e4ce`](https://github.com/withastro/astro/commit/49514e4ce40fedb39bf7decd2c296258efbdafc7) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade shiki to v0.14.1. This updates the shiki theme colors and adds the theme name to the `pre` tag, e.g. `<pre class="astro-code github-dark">`.
+
+### Patch Changes
+
+- [#6973](https://github.com/withastro/astro/pull/6973) [`0883fd487`](https://github.com/withastro/astro/commit/0883fd4875548a613df122f0b87a1ca8b7a7cf7d) Thanks [@matthewp](https://github.com/matthewp)! - Ensure multiple cookies set in dev result in multiple set-cookie headers
+
+- Updated dependencies [[`49514e4ce`](https://github.com/withastro/astro/commit/49514e4ce40fedb39bf7decd2c296258efbdafc7)]:
+  - @astrojs/markdown-remark@2.2.0
+
 ## 2.3.4
 
 ### Patch Changes
